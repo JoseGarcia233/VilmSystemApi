@@ -1,24 +1,18 @@
 import { ResponseDto } from '@/common/dto/response.dto';
+import { handleHttpException } from '@/common/utils/http-exception.util';
 import { PrismaService } from '@/config/prisma/prisma.service';
 import { MailService } from '@/modules/mail/mail.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
-import {
-  LoginResponseData,
-  RegisterResponseData,
-} from './dto/login-response.dto';
+import { LoginResponseData } from './dto/login-response.dto';
 import { LoginDto } from './dto/login.dto';
 import {
   ResetPasswordConfirmDto,
   ResetPasswordDto,
 } from './dto/reset-password.dto';
 import { logoString } from './logoString';
-import { handleHttpException } from '@/common/utils/http-exception.util';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { GeneralStatus } from '@prisma/client';
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -26,54 +20,6 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailService,
   ) {}
-
-  async createUser(
-    data: CreateUserDto,
-  ): Promise<ResponseDto<RegisterResponseData>> {
-    if (!data.status) data.status = GeneralStatus.ACTIVE;
-
-    try {
-      const emailExist = await this.prisma.users.findUnique({
-        where: {
-          email: data.email.toLowerCase(),
-        },
-      });
-
-      if (emailExist) {
-        throw new BadRequestException('Este correo ya esta en uso');
-      }
-
-      const hashedPassword = await bcrypt.hash(data.password, 10);
-
-      const user = await this.prisma.users.create({
-        data: {
-          ...data,
-          password: hashedPassword,
-        },
-      });
-
-      return new ResponseDto<RegisterResponseData>(
-        'Usuario creado exitosamente',
-        'El usuario ha sido creado exitosamente',
-        false,
-        201,
-        {
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            lastName: user.lastName,
-          },
-        },
-      );
-    } catch (error) {
-      handleHttpException({
-        title: 'Error al crear el usuario',
-        description: error.message || 'Error desconocido',
-        statusCode: error.status || 500,
-      });
-    }
-  }
 
   async login(body: LoginDto): Promise<ResponseDto<LoginResponseData>> {
     let { email, password } = body;

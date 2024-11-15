@@ -21,8 +21,8 @@ model Users {
   name      String
   lastName  String
   status    GeneralStatus @default(ACTIVE)
-  crearteAt DateTime      @default(now())
-  updateAt  DateTime      @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
   passwordReset PasswordReset[]
 }
@@ -42,8 +42,8 @@ model Clients {
   phone     String
   email     String        @unique
   status    GeneralStatus @default(ACTIVE)
-  crearteAt DateTime      @default(now())
-  updateAt  DateTime      @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 }
 
 model Test {

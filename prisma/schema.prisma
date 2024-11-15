@@ -13,23 +13,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Users {
+  id        String        @id @default(cuid())
+  email     String        @unique
+  password  String
+  role      String        @default("User")
+  name      String
+  lastName  String
+  status    GeneralStatus @default(ACTIVE)
+  crearteAt DateTime      @default(now())
+  updateAt  DateTime      @updatedAt
 
-model User{
-  id                String           @id @default(cuid())
-  email             String           @unique
-  password          String           @unique
-  role              String           @default("User")
-  username          String           @unique
-  isActive          Boolean          @default(true)  
-  crearteAt         DateTime         @default(now())
-  updateAt          DateTime         @updatedAt
+  passwordReset PasswordReset[]
 }
 
+model PasswordReset {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  user      Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-model Test{
-  id                String          @id @default(cuid())
-  nametest          String          @unique
-  user              String          @unique
- 
+model Clients {
+  id        String        @id @default(cuid())
+  name      String
+  lastName  String
+  phone     String
+  email     String        @unique
+  status    GeneralStatus @default(ACTIVE)
+  crearteAt DateTime      @default(now())
+  updateAt  DateTime      @updatedAt
+}
 
+model Test {
+  id       String @id @default(cuid())
+  nametest String @unique
+  user     String @unique
+}
+
+enum GeneralStatus {
+  ACTIVE
+  INACTIVE
+  DELETED
 }
